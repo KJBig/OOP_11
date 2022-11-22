@@ -1,33 +1,26 @@
 package com.example.projectOOP.fragment
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.projectOOP.player.Player1
 import com.example.projectOOP.R
 import com.example.projectOOP.databinding.FragmentReadyBinding
-import kotlin.concurrent.thread
+import com.example.projectOOP.player.Player
+import com.example.projectOOP.player.Player2
+import com.example.projectOOP.player.Player3
 
 class ReadyFragment : Fragment() {
 
     var binding : FragmentReadyBinding? = null
     var health : Int = 1
-    var totalTime : Int = 0
-    var started = false
-
-    val handler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-            val minute = String.format("%d", totalTime / 60)
-            val second = String.format("%d", totalTime % 60)
-            binding?.txtThread?.text = "쓰레드 : $second"
-        }
-    }
+    var damage : Int = 1
+    var playerImage: Int = 1
+    private var player = Player()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,36 +32,32 @@ class ReadyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        player = Player2()
+        setPlayer(player)
+        bind(player)
 
-        binding?.btnThreadStart?.setOnClickListener {  // 그냥 쓰레드 예시 코드
-            if (started == false) {
-                started = true
-                totalTime = 0
-                binding?.txtThread?.text = "쓰레드 : ${totalTime}"
-
-                thread(start = true) {
-                    while (started) {
-                        Thread.sleep(1000)
-                        if (started) {
-                            totalTime += 1
-                            handler?.sendEmptyMessage(0)
-                        }
-                    }
-                }
-            }
+        //객체 지향의 중요한 다형성 이용.
+        // 1번 비행기 선택시
+        binding?.imagePlayer1?.setOnClickListener {
+            player = Player1()
+            setPlayer(player)
+            bind(player)
         }
-
-        binding?.btnThreadStop?.setOnClickListener {
-            started = false
+        // 2번 비행기 선택시
+        binding?.imagePlayer2?.setOnClickListener {
+            player = Player2()
+            setPlayer(player)
+            bind(player)
         }
-
-        binding?.btnPlusHealth?.setOnClickListener {
-            health++;
-            binding?.txtHealth?.text = "체력 : ${health}"
+        // 3번 비행기 선택시
+        binding?.imagePlayer3?.setOnClickListener {
+            player = Player3()
+            setPlayer(player)
+            bind(player)
         }
 
         binding?.btnReady?.setOnClickListener {
-            val bundle = bundleOf("health" to health)
+            val bundle = bundleOf("health" to health, "damage" to damage, "playerImage" to playerImage)
             findNavController().navigate(R.id.action_readyFragment_to_gameFragment, bundle)
         }
     }
@@ -76,5 +65,22 @@ class ReadyFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
+    }
+
+    private fun bind(player: Player){
+        binding?.showPlayer?.setImageResource(when( player.playerImage ){
+            1-> R.drawable.player1
+            2 -> R.drawable.player2
+            else -> {R.drawable.player3}
+        })
+
+        binding?.txtHealth?.text = "체력 : ${health}"
+        binding?.txtDamage?.text = "공격력 : ${damage}"
+    }
+
+    private fun setPlayer(player: Player) {
+        health = player.health
+        damage = player.damage
+        playerImage = player.playerImage
     }
 }

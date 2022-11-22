@@ -19,12 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/player0" />
-
         <Button
             android:id="@+id/btn_ready"
             android:layout_width="match_parent"
@@ -35,12 +29,23 @@
 
     <LinearLayout
         android:id="@+id/linearLayout3"
-        android:layout_width="409dp"
-        android:layout_height="wrap_content"
+        android:layout_width="414dp"
+        android:layout_height="26dp"
         android:layout_marginTop="50dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="1dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/txt_damage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="체력 : 1"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/txt_health"
@@ -52,49 +57,59 @@
             android:textColor="#FFFFFF"
             android:textSize="20sp" />
 
-        <Button
-            android:id="@+id/btn_plusHealth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="체력 증가" />
-
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/txt_thread"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="177dp"
-        android:layout_marginEnd="177dp"
-        android:layout_marginBottom="356dp"
-        android:text="쓰레드 : 0"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="407dp"
+        android:layout_height="314dp"
+        android:layout_marginTop="4dp"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btn_ThreadStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="쓰레드 시작"
-        app:layout_constraintBottom_toTopOf="@+id/txt_thread"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn_ThreadStop"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
 
-    <Button
-        android:id="@+id/btn_ThreadStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="쓰레드 멈춤"
+        <ImageView
+            android:id="@+id/show_player"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srcCompat="@drawable/player2" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="409dp"
+        android:layout_height="112dp"
+        android:layout_marginTop="28dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btn_ThreadStart"
-        app:layout_constraintTop_toTopOf="@+id/btn_ThreadStart" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
+
+        <ImageButton
+            android:id="@+id/image_player1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            android:src="@drawable/player1" />
+
+        <ImageButton
+            android:id="@+id/image_player2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            android:src="@drawable/player2" />
+
+        <ImageButton
+            android:id="@+id/image_player3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#00FFFFFF"
+            android:src="@drawable/player3" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
