@@ -14,11 +14,11 @@ class RankViewModel: ViewModel() {
     private val _rank = MutableLiveData<List<Rank>>()
     val rank: LiveData<List<Rank>> get() = _rank
 
-    private val _last = MutableLiveData<String>()
+    private val _last = MutableLiveData<String>("")
     val last: LiveData<String> get() = _last
 
 
-    private val _nowRank = MutableLiveData<String>("등수 밖")
+    private val _nowRank = MutableLiveData<String>()
     val nowRank: LiveData<String> get() = _nowRank
 
 
@@ -38,7 +38,7 @@ class RankViewModel: ViewModel() {
         newScore.date = Date(System.currentTimeMillis()).toString().format(mFormat)
         newScore.image = playerImage
 
-        repository.getTopTen(newScore, _rank)
+        repository.getTopTen(newScore)
     }
 
 
@@ -46,4 +46,7 @@ class RankViewModel: ViewModel() {
         checkRank(newScore, name, playerImage.toString())
     }
 
+    fun reSetNowRank(){
+        _nowRank.postValue("")
+    }
 }

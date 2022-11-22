@@ -45,16 +45,12 @@ class RankingRepository {
                 newRank.postValue(dbList.reversed())
 
                 for (rank in dbList) {
-                    if("10" == rank.rank){
-                        lastRank.postValue(rank.score.toString())
-                    }
 
-                    if(nowLocation == " "){
-                        nowRank.postValue("")
-                        break
+                    if("10" == rank.rank){
+                        lastRank.value = rank.score.toString()
                     }
-                    else if(nowLocation == rank.location){
-                        nowRank.postValue(rank.rank+"등")
+                    if(nowLocation == rank.location){
+                        nowRank.value= rank.rank+"등"
                         break
                     }
                 }
@@ -70,7 +66,7 @@ class RankingRepository {
 
 
 
-    fun getTopTen(newScore: Rank, newRank: MutableLiveData<List<Rank>>){
+    fun getTopTen(newScore: Rank){
         // DB에 Rank 가 10개 미만 newScore 를 DB에 등록
         if(dbList.size < 10){
             postRank((dbList.size+1).toString(), newScore)

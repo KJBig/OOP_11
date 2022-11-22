@@ -245,7 +245,7 @@ class GameFragment : Fragment() {
                         threadShot.interrupt()
                         retry = false
 
-                        bundle = bundleOf("score" to points, "health" to health)
+                        bundle = bundleOf("score" to points, "health" to health, "playerImage" to playerImage)
                         requireActivity().runOnUiThread {
                             findNavController().navigate(R.id.action_gameFragment_to_gameoverFragment, bundle)
                         }

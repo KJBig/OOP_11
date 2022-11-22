@@ -58,15 +58,24 @@ class GameoverFragment : Fragment() {
         viewModel.rank.observe(viewLifecycleOwner){
             binding?.pageRanking?.layoutManager = LinearLayoutManager(this.context)
             binding?.pageRanking?.adapter = RankingAdapter(ranks)
-            if(score?: 0 <= lastRank.value?.toInt() ?: 0){
+
+            if((score ?: 0) <= (lastRank.value?.toInt() ?: 0)){
                 postRank(false)
-                binding?.gameOverName?.setText(nowRank.value+"입니다.")
+                binding?.gameOverName?.setText("랭킹 밖입니다.")
             }
+
+
         }
         //입력창 실시간 업데이트
         viewModel.nowRank.observe(viewLifecycleOwner){
-            if(nowRank.value != "등수 밖") {
+            if(nowRank.value != "") {
                 binding?.gameOverName?.setText(nowRank.value+"입니다.")
+            }else{
+                binding?.gameOverName?.setText("랭킹권 점수!! 이름을 입력하세요")
+            }
+            if((score ?: 0) <= (lastRank.value?.toInt() ?: 0)){
+                postRank(false)
+                binding?.gameOverName?.setText("랭킹 밖입니다.")
             }
         }
 
@@ -82,6 +91,7 @@ class GameoverFragment : Fragment() {
         }
 
         binding?.btnBackReady?.setOnClickListener {
+            viewModel.reSetNowRank()
             findNavController().navigate(R.id.action_gameoverFragment_to_readyFragment)
         }
     }
