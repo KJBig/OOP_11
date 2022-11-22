@@ -55,7 +55,6 @@ class RankingRepository {
                     }
                 }
 
-
             }
             override fun onCancelled(error: DatabaseError) {
 
