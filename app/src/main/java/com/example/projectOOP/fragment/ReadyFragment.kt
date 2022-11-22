@@ -17,9 +17,10 @@ import com.example.projectOOP.player.Player3
 class ReadyFragment : Fragment() {
 
     var binding : FragmentReadyBinding? = null
-    var health : Int = 1
-    var damage : Int = 1
-    var playerImage: Int = 1
+    var health : Int = 0
+    var damage : Int = 0
+    var reload : Int = 0
+    var playerImage: Int = 0
     private var player = Player()
 
     override fun onCreateView(
@@ -57,7 +58,8 @@ class ReadyFragment : Fragment() {
         }
 
         binding?.btnReady?.setOnClickListener {
-            val bundle = bundleOf("health" to health, "damage" to damage, "playerImage" to playerImage)
+            val bundle = bundleOf("health" to health, "damage" to damage,
+                "reload" to reload, "playerImage" to playerImage)
             findNavController().navigate(R.id.action_readyFragment_to_gameFragment, bundle)
         }
     }
@@ -81,6 +83,7 @@ class ReadyFragment : Fragment() {
     private fun setPlayer(player: Player) {
         health = player.health
         damage = player.damage
+        reload = player.reload
         playerImage = player.playerImage
     }
 }

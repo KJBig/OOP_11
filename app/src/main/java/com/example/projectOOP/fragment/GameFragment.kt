@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.example.projectOOP.*
 import com.example.projectOOP.databinding.FragmentGameBinding
+import com.example.projectOOP.item.HpItem
 import kotlinx.coroutines.Runnable
 import java.util.*
 import kotlin.collections.ArrayList
@@ -20,6 +21,7 @@ class GameFragment : Fragment() {
     var binding : FragmentGameBinding? = null
     var health = 0
     var damage = 0
+    var missileReload = 0
     var playerImage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +29,7 @@ class GameFragment : Fragment() {
         arguments?.let {
             health = it.getInt("health")  // 레디 프래그먼트에서 보낸 체력 값
             damage = it.getInt("damage")
+            missileReload = it.getInt("reload")
             playerImage = it.getInt("playerImage")
         }
     }
@@ -37,9 +40,6 @@ class GameFragment : Fragment() {
     ): View? {
 
         class GameView(context: Context) : SurfaceView(context), SurfaceHolder.Callback {
-
-
-
             private val bgAry = arrayOf<Bitmap>(BitmapFactory.decodeResource(resources, R.drawable.bg_spring),
                 BitmapFactory.decodeResource(resources, R.drawable.bg_sea),
                 BitmapFactory.decodeResource(resources, R.drawable.bg_fall),
@@ -58,16 +58,15 @@ class GameFragment : Fragment() {
 
 
             var player: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.player1)
+            var item: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.hpitem)
 
             var rectBackground: Rect
             var dWidth = 0
             var dHeight = 0
             var TEXT_SIZE = 120f
 
-
             val thread: MyThread
             val threadShot: MyThreadShot
-
 
             var textPaint = Paint()
             var healthPaint = Paint()
@@ -80,60 +79,52 @@ class GameFragment : Fragment() {
             var oldPlayerX = 0f
             var mobs: ArrayList<Mob>
             var explosions: ArrayList<Explosion>
-
             var missiles: ArrayList<Missile>
-            var missileReload:Long
+            var hpItems: ArrayList<HpItem>
 
             lateinit var bundle : Bundle
 
-
             init {
+                backgroundImage1 = BackgroundImage(dHeight)
+                backgroundImage2 = BackgroundImage(dHeight)
 
+                backgroundImage2.y = backgroundImage1.y - Bg1.height
 
-                    backgroundImage1 = BackgroundImage(dHeight)
-                    backgroundImage2 = BackgroundImage(dHeight)
+                val display = (getContext() as Activity).windowManager.defaultDisplay
+                val size = Point()
+                display.getSize(size)
 
-                    backgroundImage2.y = backgroundImage1.y - Bg1.height
+                dWidth = size.x
+                dHeight = size.y
+                rectBackground = Rect(0, 0, dWidth, dHeight)
 
-                    val display = (getContext() as Activity).windowManager.defaultDisplay
-                    val size = Point()
-                    display.getSize(size)
+                val holder = holder
+                holder.addCallback(this)
+                thread = MyThread(holder)
+                threadShot = MyThreadShot()
 
-                    dWidth = size.x
-                    dHeight = size.y
-                    rectBackground = Rect(0, 0, dWidth, dHeight)
+                textPaint.color = Color.rgb(255, 165, 0)
+                textPaint.textSize = TEXT_SIZE
+                textPaint.textAlign = Paint.Align.LEFT
+                healthPaint.color = Color.GREEN
 
-                    val holder = holder
-                    holder.addCallback(this)
-                    thread = MyThread(holder)
-                    threadShot = MyThreadShot()
+                playerX = (dWidth / 2 - player.width / 2).toFloat()
+                playerY = (dHeight - player.height).toFloat()
 
-                    textPaint.color = Color.rgb(255, 165, 0)
-                    textPaint.textSize = TEXT_SIZE
-                    textPaint.textAlign = Paint.Align.LEFT
-                    healthPaint.color = Color.GREEN
+                when(playerImage){
+                    1 -> player = BitmapFactory.decodeResource(resources, R.drawable.player1)
+                    2 -> player = BitmapFactory.decodeResource(resources, R.drawable.player2)
+                    3 -> player = BitmapFactory.decodeResource(resources, R.drawable.player3)
+                }
 
-                    playerX = (dWidth / 2 - player.width / 2).toFloat()
-                    playerY = (dHeight - player.height).toFloat()
-
-                    when(playerImage){
-                        1 -> player = BitmapFactory.decodeResource(resources, R.drawable.player1)
-                        2 -> player = BitmapFactory.decodeResource(resources, R.drawable.player2)
-                        3 -> player = BitmapFactory.decodeResource(resources, R.drawable.player3)
-                    }
-
-                    explosions = ArrayList()
-                    mobs = ArrayList()
-                    for (i in 0..7) {
-                        val mob = Mob(context, dWidth)
-                        mobs.add(mob)
-                    }
-
-                    missileReload = 250
-                    missiles = ArrayList()
-                    val missile = Missile(context, playerX, playerY)
-                    missiles.add(missile)
-
+                explosions = ArrayList()
+                mobs = ArrayList()
+                missiles = ArrayList()
+                hpItems = ArrayList()
+                for (i in 0..7) {
+                    val mob = Mob(context, dWidth)
+                    mobs.add(mob)
+                }
             }
 
             fun rand(from: Int, to: Int): Int {
@@ -296,7 +287,7 @@ class GameFragment : Fragment() {
                     while (mRun) {
                         try {
                             missiles.add(Missile(context, playerX, playerY))
-                            sleep(missileReload)
+                            sleep(missileReload.toLong())
                         } catch (e : InterruptedException) {
                             println("쓰레드 꺼짐")
                         }
@@ -309,11 +300,11 @@ class GameFragment : Fragment() {
 
             fun drawMissile(canvas: Canvas) {
                 val missileImg = BitmapFactory.decodeResource(context.resources, R.drawable.missile)
-                val modifyMobImg = createScaledBitmap(missileImg, 300, 300, false)
+                val modifyMissileImg = createScaledBitmap(missileImg, 300, 300, false)
 
                 for (i in missiles.indices.reversed()) {
                     canvas.drawBitmap(
-                        modifyMobImg,
+                        modifyMissileImg,
                         missiles[i].missileX,
                         missiles[i].missileY,
                         null
@@ -335,14 +326,23 @@ class GameFragment : Fragment() {
                             mobs[i].mobX - mobs[i].mobWidth/2  <= missiles[j].missileX - 50 &&
                             mobs[i].mobY + mobs[i].mobHeight/2 >= missiles[j].missileY) {
 
-                            val explosion = Explosion(context)
-                            explosion.explosionX = mobs[i].mobX + 70
-                            explosion.explosionY = mobs[i].mobY
-                            explosions.add(explosion)
-
-                            mobs[i].resetPosition()
+                            mobs[i].mobHp -= damage
                             missiles.removeAt(j)
-                            points += 10
+
+                            if (mobs[i].mobHp <= 0) {
+                                val explosion = Explosion(context)
+                                explosion.explosionX = mobs[i].mobX + 70
+                                explosion.explosionY = mobs[i].mobY
+                                explosions.add(explosion)
+
+                                var range = (1..5)      // 아이템 드랍 확률
+                                if (range.random() == 1) {
+                                    hpItems.add(HpItem(context, explosion.explosionX, explosion.explosionY))
+                                }
+
+                                mobs[i].resetPosition()
+                                points += 10
+                            }
                         }
                     }
                 }
@@ -388,6 +388,21 @@ class GameFragment : Fragment() {
 
                 canvas.drawBitmap(player, playerX, playerY+100, null)
 
+                for (i in hpItems.indices) {
+                    hpItems[i].let {
+                        canvas.drawBitmap(
+                            item,
+                            hpItems[i].itemX.toFloat() + 30,
+                            hpItems[i].itemY.toFloat(),
+                            null)
+                    }
+                }
+
+                // 아이템 움직임
+                for (i in hpItems.indices) {
+                    hpItems[i].itemY += hpItems[i].itemSpeed
+                }
+
                 for (i in mobs.indices) {
                     mobs[i].getMob(mobs[i].mobFrame)?.let {
                         canvas.drawBitmap(
@@ -412,15 +427,26 @@ class GameFragment : Fragment() {
 
                 for (i in mobs.indices) {
                     if (mobs[i].mobX + mobs[i].mobWidth >= playerX +270   // +할수록 왼쪽 판정 좋음
-                        && mobs[i].mobX <= playerX + player.width -120     // -할수록 오른쪽 판정 좋음
+                        && mobs[i].mobX <= playerX + player.width -200     // -할수록 오른쪽 판정 좋음
                         && mobs[i].mobY + mobs[i].mobWidth >= playerY + 250) {
-                        life--
+                        life -= 1
                         mobs[i].resetPosition()
                         if (life == 0) {
                             surfaceDestroyed(holder)
                         }
                     }
                 }
+
+                for (i in hpItems.indices.reversed()) {                          // 플레이어와 아이템 충돌
+                    if (hpItems[i].itemX + hpItems[i].itemWidth - 100 >= playerX
+                        && hpItems[i].itemX + 100 <= playerX + player.width
+                        && hpItems[i].itemY + hpItems[i].itemHeight >= playerY + 100 ) {
+                        if (life < health)
+                            life += 1
+                        hpItems.removeAt(i)
+                    }
+                }
+
                 for (i in explosions.indices) {
                     try {
                         explosions[i].getExplosion(explosions[i].explosionFrame)?.let {

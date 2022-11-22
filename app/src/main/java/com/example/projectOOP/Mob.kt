@@ -12,6 +12,7 @@ class Mob(context: Context, private val dWidth: Int) {
     var mobX = 0
     var mobY = 0
     var mobVelocity = 0
+    var mobHp : Int
     lateinit var random: Random
 
     init {
@@ -32,6 +33,7 @@ class Mob(context: Context, private val dWidth: Int) {
             random = Random()
             resetPosition()
         }
+        mobHp = 3
     }
 
     fun getMob(mobFrame: Int): Bitmap? {
@@ -47,5 +49,6 @@ class Mob(context: Context, private val dWidth: Int) {
         mobX = random.nextInt(dWidth - mobWidth)
         mobY = -200 + random.nextInt(600) * -1
         mobVelocity = 35 - random.nextInt(16)
+        mobHp = 3
     }
 }
