@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         setFullScreen()   // 전체화면용
     }
 
-    fun setFullScreen() {
+    private fun setFullScreen() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             supportActionBar?.hide()
 

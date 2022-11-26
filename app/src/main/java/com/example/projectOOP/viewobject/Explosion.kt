@@ -1,11 +1,12 @@
-package com.example.projectOOP
+package com.example.projectOOP.viewobject
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.example.projectOOP.R
 
 class Explosion(context: Context) {
-    var explosion = arrayOfNulls<Bitmap>(4)
+    private var explosion = arrayOfNulls<Bitmap>(4)
     var explosionFrame = 0
     var explosionX = 0
     var explosionY = 0

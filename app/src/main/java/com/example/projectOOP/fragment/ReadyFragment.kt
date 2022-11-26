@@ -16,11 +16,12 @@ import com.example.projectOOP.player.Player3
 
 class ReadyFragment : Fragment() {
 
-    var binding : FragmentReadyBinding? = null
-    var health : Int = 1
-    var damage : Int = 1
-    var playerImage: Int = 1
-    private var player = Player()
+    private var binding : FragmentReadyBinding? = null
+    private var health : Int = 0
+    private var damage : Int = 0
+    private var missileReload : Int = 0
+    private var playerImage: Int = 0
+    private var player: Player = Player2()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +33,7 @@ class ReadyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        player = Player2()
+        //기본 지정 플레이어 초기화
         setPlayer(player)
         bind(player)
 
@@ -57,7 +58,8 @@ class ReadyFragment : Fragment() {
         }
 
         binding?.btnReady?.setOnClickListener {
-            val bundle = bundleOf("health" to health, "damage" to damage, "playerImage" to playerImage)
+            val bundle = bundleOf("health" to health, "damage" to damage,
+                "missileReload" to missileReload, "playerImage" to playerImage)
             findNavController().navigate(R.id.action_readyFragment_to_gameFragment, bundle)
         }
     }
@@ -81,6 +83,7 @@ class ReadyFragment : Fragment() {
     private fun setPlayer(player: Player) {
         health = player.health
         damage = player.damage
+        missileReload = player.reload
         playerImage = player.playerImage
     }
 }

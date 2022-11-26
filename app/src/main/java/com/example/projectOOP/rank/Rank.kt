@@ -1,8 +1,4 @@
-package com.example.projectOOP
-
-enum class PlayerImage{
-    ONE, TWO, THREE
-}
+package com.example.projectOOP.rank
 
 data class Rank(var rank: String="",
                 var location: String="",

@@ -1,18 +1,24 @@
-package com.example.projectOOP
+package com.example.projectOOP.viewobject
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.example.projectOOP.R
 import java.util.*
 
 class Mob(context: Context, private val dWidth: Int) {
-    val i = 8
-    var mob = arrayOfNulls<Bitmap>(8)
+    private val mobNum = 8
+    private var mob = arrayOfNulls<Bitmap>(mobNum)
     var mobFrame = 0
     var mobX = 0
     var mobY = 0
     var mobVelocity = 0
-    lateinit var random: Random
+    var mobHp : Int
+
+    private var random: Random
+
+    val mobWidth: Int get() = mob[0]!!.width
+    val mobHeight: Int get() = mob[0]!!.height
 
     init {
         mob[0] = BitmapFactory.decodeResource(context.resources, R.drawable.mob0)
@@ -24,28 +30,26 @@ class Mob(context: Context, private val dWidth: Int) {
         mob[6] = BitmapFactory.decodeResource(context.resources, R.drawable.mob6)
         mob[7] = BitmapFactory.decodeResource(context.resources, R.drawable.mob7)
 
-        for(j in 0 until i) {
-//            mob[j] = BitmapFactory.decodeResource(context.resources, R.drawable.mob0)
-            mob[j] = mob[j]?.let {
+
+        random = Random()
+
+        for(i in 0 until mobNum) {
+            mob[i] = mob[i]?.let {
                 Bitmap.createScaledBitmap(it, 400, 400, true)
             }
-            random = Random()
-            resetPosition()
+            reProduce()
         }
+        mobHp = 3
     }
 
     fun getMob(mobFrame: Int): Bitmap? {
         return mob[mobFrame]
     }
 
-    val mobWidth: Int
-        get() = mob[0]!!.width
-    val mobHeight: Int
-        get() = mob[0]!!.height
-
-    fun resetPosition() {
+    fun reProduce() {
         mobX = random.nextInt(dWidth - mobWidth)
         mobY = -200 + random.nextInt(600) * -1
         mobVelocity = 35 - random.nextInt(16)
+        mobHp = 3
     }
 }

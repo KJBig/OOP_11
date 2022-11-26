@@ -4,41 +4,39 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projectOOP.R
-import com.example.projectOOP.Rank
-import com.example.projectOOP.RankingAdapter
+import com.example.projectOOP.rank.Rank
+import com.example.projectOOP.rank.RankingAdapter
 import com.example.projectOOP.databinding.FragmentGameoverBinding
 import com.example.projectOOP.viewmodel.RankViewModel
 
-class GameoverFragment : Fragment() {
+class GameOverFragment : Fragment() {
 
-    var binding : FragmentGameoverBinding? = null
-    val viewModel: RankViewModel by activityViewModels()
+    private var binding : FragmentGameoverBinding? = null
+    private val viewModel: RankViewModel by activityViewModels()
 
-    var score: Int? = 0
-    var health: Int = 0
-    var playerImage: Int = 0
+    private var score: Int? = 0 // -> 이거 왜 널 가능 임?
+//    private var health: Int = 0
+    private var playerImage: Int = 0
 
-    lateinit var ranks : LiveData<List<Rank>>
-    lateinit var nowRank : LiveData<String>
-    lateinit var lastRank : LiveData<String>
-
+    private lateinit var dbData: LiveData<List<Rank>>
+    private lateinit var currentRank : LiveData<String>
+    private lateinit var lastRank : LiveData<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             score = it.getInt("score")  // 게임 프래그먼트에서 보낸 값이 여기로 전달된다
-            health = it.getInt("health")
+//            health = it.getInt("health")
             playerImage = it.getInt("playerImage")
-            ranks = viewModel.rank
-            nowRank = viewModel.nowRank
-            lastRank = viewModel.last
+            dbData = viewModel.dbData
+            currentRank = viewModel.nowRank
+            lastRank = viewModel.lastRank
 
         }
     }
@@ -55,9 +53,9 @@ class GameoverFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //Ranking 실시간 업데이트
-        viewModel.rank.observe(viewLifecycleOwner){
+        viewModel.dbData.observe(viewLifecycleOwner){
             binding?.pageRanking?.layoutManager = LinearLayoutManager(this.context)
-            binding?.pageRanking?.adapter = RankingAdapter(ranks)
+            binding?.pageRanking?.adapter = RankingAdapter(dbData)
 
             if((score ?: 0) <= (lastRank.value?.toInt() ?: 0)){
                 postRank(false)
@@ -68,8 +66,8 @@ class GameoverFragment : Fragment() {
         }
         //입력창 실시간 업데이트
         viewModel.nowRank.observe(viewLifecycleOwner){
-            if(nowRank.value != "") {
-                binding?.gameOverName?.setText(nowRank.value+"입니다.")
+            if(currentRank.value != "") {
+                binding?.gameOverName?.setText(currentRank.value+"입니다.")
             }else{
                 binding?.gameOverName?.setText("랭킹권 점수!! 이름을 입력하세요")
             }
@@ -79,10 +77,10 @@ class GameoverFragment : Fragment() {
             }
         }
 
+        // GameFragment에서 받은 값으로 지정
+        binding?.txtScore?.text = "점수 : ${score}"
 
-        binding?.txtScore?.text = "점수 : ${score}"   // 위에서 전달받은 값을 할당한다
-
-
+        // 현재 score 랭킹에 등록
         binding?.btnPostRank?.setOnClickListener {
             val name = binding?.gameOverName?.text.toString()
             viewModel.tryRank(score, name, playerImage)
@@ -90,21 +88,22 @@ class GameoverFragment : Fragment() {
 
         }
 
+        // ready 화면으로 이동.
         binding?.btnBackReady?.setOnClickListener {
             viewModel.reSetNowRank()
             findNavController().navigate(R.id.action_gameoverFragment_to_readyFragment)
         }
     }
 
-    private fun postRank(value: Boolean) {
-        binding?.btnPostRank?.isEnabled = value
-        binding?.gameOverName?.isEnabled = value
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
 
         binding = null
+    }
+
+    private fun postRank(value: Boolean) {
+        binding?.btnPostRank?.isEnabled = value
+        binding?.gameOverName?.isEnabled = value
     }
 
 }

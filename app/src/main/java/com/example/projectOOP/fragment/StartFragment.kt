@@ -11,13 +11,13 @@ import com.example.projectOOP.databinding.FragmentStartBinding
 
 class StartFragment : Fragment() {
 
-    var binding: FragmentStartBinding? = null
+    private var binding: FragmentStartBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentStartBinding.inflate(inflater);
+        binding = FragmentStartBinding.inflate(inflater)
 
         return binding?.root
     }
