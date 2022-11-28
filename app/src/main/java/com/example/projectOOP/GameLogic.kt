@@ -15,7 +15,7 @@ import java.lang.IndexOutOfBoundsException
 
 // damage, health, delay, image 어떻게 가져올것인가.
 
-class GameLogic(context: Context, _health: Int, _damage: Int, _missileReload: Int, _playerImage: Int, val gameView: GameView): SurfaceView(context) {
+class GameLogic(context: Context, _health: Int, _damage: Int, _missileReload: Int, _playerImage: Int, private val gameView: GameView): SurfaceView(context) {
     // 배경화면 array
     private val bgAry = arrayOf<Bitmap>(
         BitmapFactory.decodeResource(resources, R.drawable.bg_spring),
@@ -89,12 +89,20 @@ class GameLogic(context: Context, _health: Int, _damage: Int, _missileReload: In
         playerX = (gameView.dWidth / 2 - player.width / 2).toFloat()
         playerY = (gameView.dHeight - player.height).toFloat()
         // Player 이미지 초기화
-
+        chosePlayerImage(playerImage)
 
         // 몬스터 배열 초기화
         for (i in 0..7) {
             val mob = Mob(context, gameView.dWidth)
             mobs.add(mob)
+        }
+    }
+
+    private fun chosePlayerImage(playerImage: Int){
+        when(playerImage){
+                1 -> player = BitmapFactory.decodeResource(resources, R.drawable.player1)
+                2 -> player = BitmapFactory.decodeResource(resources, R.drawable.player2)
+                3 -> player = BitmapFactory.decodeResource(resources, R.drawable.player3)
         }
     }
 
