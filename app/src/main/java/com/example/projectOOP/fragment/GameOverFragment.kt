@@ -57,11 +57,12 @@ class GameOverFragment : Fragment() {
             binding?.pageRanking?.layoutManager = LinearLayoutManager(this.context)
             binding?.pageRanking?.adapter = RankingAdapter(dbData)
 
-            if((score ?: 0) <= (lastRank.value?.toInt() ?: 0)){
-                postRank(false)
-                binding?.gameOverName?.setText("랭킹 밖입니다.")
+            if(lastRank.value != "-1") {
+                if ((score ?: 0) <= (lastRank.value?.toInt() ?: 0)) {
+                    postRank(false)
+                    binding?.gameOverName?.setText("랭킹 밖입니다.")
+                }
             }
-
 
         }
         //입력창 실시간 업데이트

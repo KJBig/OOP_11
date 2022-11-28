@@ -5,6 +5,7 @@ import android.graphics.*
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.SurfaceView
+import androidx.lifecycle.LifecycleOwner
 import com.example.projectOOP.item.HpItem
 import com.example.projectOOP.viewobject.BackgroundImage
 import com.example.projectOOP.viewobject.Explosion
@@ -12,8 +13,9 @@ import com.example.projectOOP.viewobject.Missile
 import com.example.projectOOP.viewobject.Mob
 import java.lang.IndexOutOfBoundsException
 
-class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) {
-//class GameLogic(context: Context, _health: Int, _damage: Int, _missileReload: Int, _playerImage: Int, val gameView: GameView): SurfaceView(context) {
+// damage, health, delay, image 어떻게 가져올것인가.
+
+class GameLogic(context: Context, _health: Int, _damage: Int, _missileReload: Int, _playerImage: Int, val gameView: GameView): SurfaceView(context) {
     // 배경화면 array
     private val bgAry = arrayOf<Bitmap>(
         BitmapFactory.decodeResource(resources, R.drawable.bg_spring),
@@ -24,8 +26,8 @@ class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) 
         BitmapFactory.decodeResource(resources, R.drawable.bg_desert))
 
     // 배경화면 설정
-    private var backgroundImage1: BackgroundImage
-    private var backgroundImage2: BackgroundImage
+    private var backgroundImage1 = BackgroundImage(gameView.dHeight)
+    private var backgroundImage2 = BackgroundImage(gameView.dHeight)
     private var backgroundCount1 =0
     private var backgroundCount2 =0
     private var bgNum = 0
@@ -34,35 +36,26 @@ class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) 
 
     // Player 설정
     var player: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.player1)
-//    var playerImage = _playerImage
-//    var damage = _damage
-    var playerImage = 0
-    var damage = 0
-    var playerX: Float
-    var playerY: Float
-    var oldX = 0f
-    var oldPlayerX = 0f
-
-    // dHeight, dW
-//    var gameView.dHeight = 0
-//    var gameViewWidth = 0
-
-    // itme 설정
     var item: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.hpitem)
 
-    // TEXT 설정
-    var TEXT_SIZE = 120f
-    var textPaint = Paint()
+    var playerImage = _playerImage
+    var damage = _damage
 
-    // 목숨 설정
+    // Player XY
+    var playerX: Float
+    var playerY: Float
+
+    var textPaint = Paint()
     var healthPaint = Paint()
-//    var health = _health
-    var health = 0
+    var TEXT_SIZE = 120f
+
+    // itme X
+    var health = _health
     var life = health
     var hpItems: ArrayList<HpItem> = ArrayList()
     // 미사일 설정
-//    var missileReload = _missileReload
-    var missileReload = 0
+
+    var missileReload = _missileReload
     var missiles: ArrayList<Missile> = ArrayList()
 
     // 몬스터 설정
@@ -74,16 +67,11 @@ class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) 
     // 점수 설정
     var points = 0
 
-    // 번들
-    lateinit var bundle : Bundle
-
     //방향 판단용 배열
     var cnt = intArrayOf(1, 1, 1, 1, 1, 1, 1, 1)
 
     init {
         // 배경화면 초기화
-        backgroundImage1 = BackgroundImage(gameView.dHeight)
-        backgroundImage2 = BackgroundImage(gameView.dHeight)
 
         backgroundImage2.y = backgroundImage1.y - Bg1.height
 
@@ -105,23 +93,14 @@ class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) 
 
         // 몬스터 배열 초기화
         for (i in 0..7) {
-            println("ddddddddd: ${gameView.dWidth}")
             val mob = Mob(context, gameView.dWidth)
             mobs.add(mob)
         }
     }
 
-    fun getPlayerImage(playerImage: Int){
-
-        return when(playerImage){
-            1 -> player = BitmapFactory.decodeResource(resources, R.drawable.player1)
-            2 -> player = BitmapFactory.decodeResource(resources, R.drawable.player2)
-            else -> player = BitmapFactory.decodeResource(resources, R.drawable.player3)
-        }
-    }
 
     // 몬스터 움직임
-    fun animation(i: Int) {
+    private fun animation(i: Int) {
         if( i == 0 ) {
             if(cnt[i] != 0) { //오른쪽으로
                 mobs[i].mobY += mobs[i].mobVelocity - 10
@@ -230,7 +209,7 @@ class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) 
                         explosion.explosionY = mobs[i].mobY
                         explosions.add(explosion)
 
-                        var range = (1..5)      // 아이템 드랍 확률
+                        val range = (1..5)      // 아이템 드랍 확률
                         if (range.random() == 1) {
                             hpItems.add(HpItem(context, explosion.explosionX, explosion.explosionY))
                         }
@@ -245,6 +224,8 @@ class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) 
 
     // 게임 그리기
     fun drawGame(canvas: Canvas) {
+
+
         drawBackground(canvas)
 
         canvas.drawBitmap(player, playerX, playerY+100, null)
@@ -280,7 +261,7 @@ class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) 
                 life -= 1
                 mobs[i].reProduce()
                 if (life == 0) {
-                    gameView.points = points
+//                    gameView.points = points
                     gameView.surfaceDestroyed(holder)
                 }
             }
@@ -395,27 +376,6 @@ class GameLogic(context: Context, val gameView: GameView): SurfaceView(context) 
         )
     }
 
-    // Player 터치로 이동
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        val touchX = event.x
-        val touchY = event.y
-        if (touchY >= playerY) {
-            val action = event.action
-            if (action == MotionEvent.ACTION_DOWN) {
-                oldX = event.x
-                oldPlayerX = playerX
-            }
-            if (action == MotionEvent.ACTION_MOVE) {
-                val shift = oldX - touchX
-                val newPlayerX = oldPlayerX - shift
-                playerX = if (newPlayerX <= -150f) {
-                    -150f
-                } else if (newPlayerX >= gameView.dWidth - player.width +100) {
-                    (gameView.dWidth - player.width + 100).toFloat()
-                } else newPlayerX
-            }
-        }
-        return true
-    }
+
 
 }

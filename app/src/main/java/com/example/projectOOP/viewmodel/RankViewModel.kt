@@ -15,7 +15,7 @@ class RankViewModel: ViewModel() {
     val dbData: LiveData<List<Rank>> get() = _dbData
 
     //DB의 10등 데이터와 비교 했을 때 어떤지\
-    private val _lastRank = MutableLiveData<String>("")
+    private val _lastRank = MutableLiveData<String>("-1")
     val lastRank: LiveData<String> get() = _lastRank
 
     //현재 score 의 등수
