@@ -22,11 +22,6 @@ class GameView(context: Context, _health: Int, _damage: Int, _missileReload: Int
 
     private var gameLogic: GameLogic
 
-//    var playerImage = _playerImage
-
-    private val _playerXY = MutableLiveData<List<Float>>()
-    val playerXY: LiveData<List<Float>> get() = _playerXY
-
     // 점수 설정
     private var playerX: Float
     private var playerY: Float
@@ -65,8 +60,6 @@ class GameView(context: Context, _health: Int, _damage: Int, _missileReload: Int
 
         playerX = (dWidth / 2 - gameLogic.player.width / 2).toFloat()
         playerY = (dHeight - gameLogic.player.height).toFloat()
-
-        _playerXY.value = arrayListOf(playerX, playerY)
 
     }
 
