@@ -10,7 +10,7 @@ import com.example.projectOOP.databinding.FragmentGameBinding
 
 
 class GameFragment : Fragment(), GameOverController {
-//class GameFragment : Fragment() {
+
 
     private var binding : FragmentGameBinding? = null
 
@@ -22,7 +22,8 @@ class GameFragment : Fragment(), GameOverController {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            health = it.getInt("health")  // 레디 프래그먼트에서 보낸 체력 값
+            // ReadyFragment 에서 보낸 번들 값들을 GameOverFragment 의 값으로 지정
+            health = it.getInt("health")
             damage = it.getInt("damage")
             missileReload = it.getInt("missileReload")
             playerImage = it.getInt("playerImage")
@@ -37,13 +38,7 @@ class GameFragment : Fragment(), GameOverController {
         return context?.let { GameView(it, health, damage, missileReload, playerImage, this) }
     }
 
-//    override fun gameOver(bundle: Bundle) {
-//        super.gameOver(bundle)
-//        requireActivity().runOnUiThread{
-//            findNavController().navigate(R.id.gameoverFragment, bundle)
-//        }
-//    }
-
+    // game 종료 시 GameView가 해당 메소드 호출
    override fun gameOver(bundle: Bundle) {
        super.gameOver(bundle)
         requireActivity().runOnUiThread{
@@ -53,7 +48,6 @@ class GameFragment : Fragment(), GameOverController {
 
     override fun onDestroyView() {
         super.onDestroyView()
-
         binding = null
     }
 

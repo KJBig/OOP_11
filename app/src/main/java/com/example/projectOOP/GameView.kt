@@ -17,7 +17,8 @@ import com.example.projectOOP.thread.MissileThread
 
 
 // Thread 구동 및 화면 좌표 생성.
-class GameView(context: Context, _health: Int, _damage: Int, _missileReload: Int, _playerImage: Int, private val controller: GameOverController) : SurfaceView(context), SurfaceHolder.Callback {
+class GameView(context: Context, _health: Int, _damage: Int, _missileReload: Int, _playerImage: Int,
+               private val controller: GameOverController) : SurfaceView(context), SurfaceHolder.Callback {
 
 
     private var gameLogic: GameLogic
@@ -102,8 +103,6 @@ class GameView(context: Context, _health: Int, _damage: Int, _missileReload: Int
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val touchX = event.x
         val touchY = event.y
-        gameLogic.playerX = playerX
-        gameLogic.playerY = playerY
 
         if (touchY >= playerY) {
             val action = event.action
@@ -114,7 +113,7 @@ class GameView(context: Context, _health: Int, _damage: Int, _missileReload: Int
             if (action == MotionEvent.ACTION_MOVE) {
                 val shift = oldX - touchX
                 val newPlayerX = oldPlayerX - shift
-                playerX = if (newPlayerX <= -150f) {
+                gameLogic.playerX = if (newPlayerX <= -150f) {
                     -150f
                 } else if (newPlayerX >= dWidth - gameLogic.player.width +100) {
                     (dWidth - gameLogic.player.width + 100).toFloat()

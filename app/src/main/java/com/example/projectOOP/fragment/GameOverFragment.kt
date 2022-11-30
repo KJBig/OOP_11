@@ -21,7 +21,6 @@ class GameOverFragment : Fragment() {
     private val viewModel: RankViewModel by activityViewModels()
 
     private var score: Int? = 0 // -> 이거 왜 널 가능 임?
-//    private var health: Int = 0
     private var playerImage: Int = 0
 
     private lateinit var dbData: LiveData<List<Rank>>
@@ -31,11 +30,13 @@ class GameOverFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            score = it.getInt("score")  // 게임 프래그먼트에서 보낸 값이 여기로 전달된다
-//            health = it.getInt("health")
+            // GameView 에서 보낸 값을 GameOver Fragment 의 값으로 설정
+            score = it.getInt("score")
             playerImage = it.getInt("playerImage")
+
+            // LiveData 설정.
             dbData = viewModel.dbData
-            currentRank = viewModel.nowRank
+            currentRank = viewModel.currentRank
             lastRank = viewModel.lastRank
 
         }
@@ -57,39 +58,36 @@ class GameOverFragment : Fragment() {
             binding?.pageRanking?.layoutManager = LinearLayoutManager(this.context)
             binding?.pageRanking?.adapter = RankingAdapter(dbData)
 
+
             if(lastRank.value != "-1") {
                 if ((score ?: 0) <= (lastRank.value?.toInt() ?: 0)) {
-                    postRank(false)
+                    postEnabled(false)
                     binding?.gameOverName?.setText("랭킹 밖입니다.")
+                }else{
+                    binding?.gameOverName?.setText("랭킹권 점수!! 이름을 입력하세요")
                 }
-            }
-
-        }
-        //입력창 실시간 업데이트
-        viewModel.nowRank.observe(viewLifecycleOwner){
-            if(currentRank.value != "") {
-                binding?.gameOverName?.setText(currentRank.value+"입니다.")
-            }else{
+            }else{ // Firebase 에 등록된 랭킹이 10개 미만일 경우
                 binding?.gameOverName?.setText("랭킹권 점수!! 이름을 입력하세요")
             }
-            if((score ?: 0) <= (lastRank.value?.toInt() ?: 0)){
-                postRank(false)
-                binding?.gameOverName?.setText("랭킹 밖입니다.")
+
+            // 랭킹 등록 시 등록된 랭킹 표시
+            if(currentRank.value != "") {
+                binding?.gameOverName?.setText(currentRank.value+"입니다.")
             }
+
         }
 
-        // GameFragment에서 받은 값으로 지정
+        // GameView 에서 받은 값으로 지정
         binding?.txtScore?.text = "점수 : ${score}"
 
         // 현재 score 랭킹에 등록
         binding?.btnPostRank?.setOnClickListener {
             val name = binding?.gameOverName?.text.toString()
             viewModel.tryRank(score, name, playerImage)
-            postRank(false)
-
+            postEnabled(false)
         }
 
-        // ready 화면으로 이동.
+        // 다시하기 버튼 ReadyFragment 로 이동.
         binding?.btnBackReady?.setOnClickListener {
             viewModel.reSetNowRank()
             findNavController().navigate(R.id.action_gameoverFragment_to_readyFragment)
@@ -102,7 +100,7 @@ class GameOverFragment : Fragment() {
         binding = null
     }
 
-    private fun postRank(value: Boolean) {
+    private fun postEnabled(value: Boolean) {
         binding?.btnPostRank?.isEnabled = value
         binding?.gameOverName?.isEnabled = value
     }

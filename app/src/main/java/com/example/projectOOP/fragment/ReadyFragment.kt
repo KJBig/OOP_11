@@ -33,7 +33,7 @@ class ReadyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //기본 지정 플레이어 초기화
+        //기본 지정 플레이어 설정
         setPlayer(player)
         bind(player)
 
@@ -57,6 +57,7 @@ class ReadyFragment : Fragment() {
             bind(player)
         }
 
+        // 최종 선택 시 GameFragment 로 player의 값을 전달.
         binding?.btnReady?.setOnClickListener {
             val bundle = bundleOf("health" to health, "damage" to damage,
                 "missileReload" to missileReload, "playerImage" to playerImage)
@@ -69,6 +70,7 @@ class ReadyFragment : Fragment() {
         binding = null
     }
 
+    // 선택된 Player 타입에 따라 이미지, 체력, 공격력을 보여주기 위함
     private fun bind(player: Player){
         binding?.showPlayer?.setImageResource(when( player.playerImage ){
             1-> R.drawable.player1
@@ -80,6 +82,7 @@ class ReadyFragment : Fragment() {
         binding?.txtDamage?.text = "공격력 : ${damage}"
     }
 
+    // 선택된 Player 타입의 값을 player 의 값으로 설정
     private fun setPlayer(player: Player) {
         health = player.health
         damage = player.damage
