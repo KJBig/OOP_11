@@ -94,7 +94,6 @@ class GameOverFragment : Fragment() {
             }
 
         }
-
         // GameView 에서 받은 값으로 지정
         binding?.txtScore?.text = "점수 : ${score}"
 
