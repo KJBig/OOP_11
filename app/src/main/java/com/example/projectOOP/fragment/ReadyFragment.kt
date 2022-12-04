@@ -80,6 +80,7 @@ class ReadyFragment : Fragment() {
 
         binding?.txtHealth?.text = "체력 : ${health}"
         binding?.txtDamage?.text = "공격력 : ${damage}"
+        binding?.txtReload?.text = "연사 딜레이 : ${missileReload}"
     }
 
     // 선택된 Player 타입의 값을 player 의 값으로 설정
