@@ -47,7 +47,4 @@ class BackgroundImage(context: Context, private val start: Int) {
             nowImageNum = 0
         }
     }
-
-
-
 }

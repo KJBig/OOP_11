@@ -14,16 +14,12 @@ import java.lang.IndexOutOfBoundsException
 //class GameLogic(context: Context, _health: Int, _damage: Int, _missileReload: Int, _playerImage: Int, private val gameView: GameView): SurfaceView(context) {
 class GameLogic(context: Context, val player: Player, private val gameView: GameView): SurfaceView(context) {
 
-
     // 배경화면 설정
     var backGrounds: ArrayList<BackgroundImage> = ArrayList()
 //    var player = _player
 
     // 플레이어 이미지 초기화
     var playerImage: Bitmap = BitmapFactory.decodeResource(resources, player.image)
-
-    // 아이템 이미지 설정
-    var item: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.hpitem)
 
     // 플레이어 데미지 설정
     var damage = player.damage
@@ -35,9 +31,11 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
     var playerY: Float
 
     // 게임 텍스트 설정
-    var textPaint = Paint()
-    var healthPaint = Paint()
     private var TEXT_SIZE = 120f
+
+    // 색 설정
+    private var textPaint = Paint()
+    var healthPaint = Paint()
 
     // 플레이어의 총 체력을 기반으로 목숨 설정
     var life = health
@@ -85,7 +83,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
     }
 
     // 게임 그리기
-    //GameThread에 의해 지속적으로 호출됨.
+    // GameThread에 의해 지속적으로 호출됨.
     fun drawGame(canvas: Canvas) {
         drawBackground(canvas)
         drawItems(canvas)
@@ -105,7 +103,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
             mobs[i].mobFrame++
 
             // 배열의 이미지들을 순환
-            if (mobs[i].mobFrame > 2) {
+            if (mobs[i].mobFrame > 7) {
                 mobs[i].mobFrame = 0
             }
 
@@ -116,7 +114,6 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
             // 화면 밖으로 사라질 때 처리
             if (mobs[i].mobY + mobs[i].mobHeight >= gameView.dHeight + 200) {
                 mobs[i].reGen()
-
             }
         }
 
@@ -128,7 +125,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
                   && (mobs[i].mobY+mobs[i].mobHeight  >= playerY + 250) // 몬스터와 플레이어의 높이가 겹칠때
               ){
 
-                // 목숩 1 감소 후 몬스터 다시만듬
+                // 목숨 1 감소 후 몬스터 다시만듬
                 life -= 1
                 // 몬스터 리젠
                 mobs[i].reGen()
@@ -142,11 +139,12 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
         }
 
         // 목숨에 따른 목숨 상태 색 변경
-        if (life < health / 3 * 2 && life >= health / 3) {
-            healthPaint.color = Color.YELLOW
-        } else if (life < health / 3) {
+        if (life <= health / 3) {
             healthPaint.color = Color.RED
-        }
+        } else if (life <= health / 3 * 2 ) {
+            healthPaint.color = Color.YELLOW
+        } else
+            healthPaint.color = Color.GREEN
 
         // 업데이트 된 목숨 draw
         canvas.drawRect(
@@ -158,7 +156,6 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
         )
         // 업데이트 된 점수 draw
         canvas.drawText("" + points, 20f, TEXT_SIZE, textPaint)
-        // 업데이트 된 플레이어의 위치에서 draw
     }
     // 배경화면 그리기
     private fun drawBackground(canvas: Canvas) {
@@ -202,7 +199,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
         for (i in hpItems.indices) {
             hpItems[i].let {
                 canvas.drawBitmap(
-                    item,
+                    hpItems[i].itemImg,
                     hpItems[i].itemX.toFloat() + 30,
                     hpItems[i].itemY.toFloat(),
                     null
@@ -215,35 +212,31 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
             hpItems[i].move()
         }
 // ** 이 부분 메소드로 빼는게 맞을까?**
-        for (i in hpItems.indices.reversed()) {                          // 플레이어와 아이템 충돌
+        for (i in hpItems.indices.reversed()) {   // 플레이어와 아이템 충돌
             if (hpItems[i].itemX + hpItems[i].itemWidth - 100 >= playerX
                 && hpItems[i].itemX + 100 <= playerX + playerImage.width
                 && hpItems[i].itemY + hpItems[i].itemHeight >= playerY + 100 ) {
-                if (life < health)
-                    life += 1
-                hpItems.removeAt(i)
+                if (life < health)      // 체력이 최대체력 적은 경우
+                    life += 1           // 체력이 1만큼 증가시킨다
+                hpItems.removeAt(i)     // 충돌 시 배열에서 삭제
             }
         }
     }
 
     // 미사일 그리기
     fun drawMissile(canvas: Canvas) {
-        val missileImg = BitmapFactory.decodeResource(context.resources, R.drawable.missile)
-        val modifyMissileImg = Bitmap.createScaledBitmap(missileImg, 300, 300, false)
-
         for (i in missiles.indices.reversed()) {
             canvas.drawBitmap(
-                modifyMissileImg,
+                missiles[i].missileImg,
                 missiles[i].missileX,
                 missiles[i].missileY,
                 null
             )
-
-            missiles[i].missileY -= missiles[i].missileSpeed
+            missiles[i].move()      // 미사일 움직임
         }
 
-        for (i in missiles.indices.reversed()) {       // 미사일이 화면 위쪽으로 사라지면 없애기
-            if (missiles[i].missileY < 0) {
+        for (i in missiles.indices.reversed()) {
+            if (missiles[i].missileY < 0) {     // 미사일이 화면 위쪽으로 사라지면 배열에서 삭제
                 missiles.removeAt(i)
             }
         }
@@ -264,11 +257,9 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
                         explosion.explosionY = mobs[i].mobY
                         explosions.add(explosion)
 
-                        val range = (1..5)      // 아이템 드랍 확률
-                        if (range.random() == 1) {
-                            hpItems.add(HpItem(context, explosion.explosionX, explosion.explosionY))
+                        if (mobs[i].itemDrop == 0) {    // 몬스터가 갖고 있는 0~9 값 중 0에 해당하면 아이템 생성
+                            hpItems.add(HpItem(context, explosion.explosionX, explosion.explosionY))    // 폭발이 발생한 위치 좌표에 따라 아이템을 생성한다
                         }
-
                         mobs[i].reGen()
                         points += 10
                     }
@@ -302,12 +293,10 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
     }
 
     private fun checkWallCrash(mob: Mob){
-        if(mob.mobX + mob.mobWidth >= gameView.dWidth + 150) { //오른쪽 벽에 닿았을 때
+        if(mob.mobX + mob.mobWidth >= gameView.dWidth + 150) { // 오른쪽 벽에 닿았을 때
             mob.direction = 0
         }else if(mob.mobX - mob.mobWidth <= gameView.dWidth - 1600){
             mob.direction = 1
         }
-
     }
-
 }

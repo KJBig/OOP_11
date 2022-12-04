@@ -77,8 +77,6 @@ class ReadyFragment : Fragment() {
         // textView 설정.
         binding?.txtHealth?.text = "체력 : ${player.health}"
         binding?.txtDamage?.text = "공격력 : ${player.damage}"
-        binding?.txtReload?.text = "연사력 : ${(500-player.reload)/10}/ms"
+        binding?.txtReload?.text = "연사력 : ${(1000 - player.reload)/10}/ms"
     }
-
-
 }

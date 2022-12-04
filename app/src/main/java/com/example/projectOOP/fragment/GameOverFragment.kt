@@ -41,6 +41,7 @@ class GameOverFragment : Fragment() {
     private lateinit var currentRank : LiveData<String>
     // 랭킹 등록 전 랭킹권인지 확인을 위한 lastRank
     private lateinit var lastRank : LiveData<String>
+    // 알림 기능을 위해 Activity의 context가 필요하기 때문에 설정한 MainActivity형 변수
     private lateinit var mainActivity : MainActivity
 
     override fun onAttach(context: Context) {
@@ -60,7 +61,6 @@ class GameOverFragment : Fragment() {
             dbData = viewModel.dbData
             currentRank = viewModel.currentRank
             lastRank = viewModel.lastRank
-
         }
 
         createNotificationChannel(CHANNEL_ID, "ranking", "ranking alert")   // 채널 생성
@@ -108,7 +108,7 @@ class GameOverFragment : Fragment() {
 
         // 버튼 클릭 시 현재 score 랭킹에 등록
         binding?.btnPostRank?.setOnClickListener {
-            displayNotification()   // 알림 띄우기
+            displayNotification()   // 랭킹권에 들어야만 버튼을 누를 수 있고, 버튼을 누른다면 새 랭커 등장 알림 띄우기
             val name = binding?.gameOverName?.text.toString()
             viewModel.tryRank(score, name, playerImage)
             postEnabled(false)
@@ -139,7 +139,7 @@ class GameOverFragment : Fragment() {
             .setSmallIcon(R.drawable.player2)
             .setContentTitle("랭킹 변동")
             .setContentText("새로운 랭커가 등장했습니다")
-            .setAutoCancel(true)
+            .setAutoCancel(true)    // 터치시 알림이 없어지게 만든다
             .build()
 
         notificationManager?.notify(NOTIFICATION_ID, notification)
