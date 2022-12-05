@@ -1,6 +1,5 @@
 package com.example.projectOOP.player
 
-
 import com.example.projectOOP.R
 
 class Player1: Player() {
@@ -9,5 +8,4 @@ class Player1: Player() {
     override var health = 1
     override var reload = 500
     override var image = R.drawable.player1
-
 }

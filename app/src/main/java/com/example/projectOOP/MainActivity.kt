@@ -16,15 +16,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setFullScreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            supportActionBar?.hide()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {   // 안드로이드 11, API 30 이상
+            supportActionBar?.hide()    // 화면 상단에 제목같은 걸 나타내는 toolbar 숨기기
 
-            window.setDecorFitsSystemWindows(false)
+            window.setDecorFitsSystemWindows(false)     // 최상단 레이아웃을 전체 화면으로 설정
+
+            // API 30 이후로는 systemUIVisibility 대신 windowInsetsController를 만들어서 사용해야 한다
             val controller = window.insetsController
             if (controller != null) {
-                controller.hide(WindowInsets.Type.statusBars() or
+                controller.hide(WindowInsets.Type.statusBars() or   // status Bar, Navigation Bar 숨기기
                 WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE  // 스와이프 해야 시스템바가 나타나도록
             }
         }
     }
