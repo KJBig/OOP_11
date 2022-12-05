@@ -60,7 +60,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
         backGrounds[1].y = backGrounds[0].y - backGrounds[0].nowImage.height
 
         // TEXT 초기화
-        textPaint.color = Color.rgb(255, 165, 0)
+        textPaint.color = Color.YELLOW
         textPaint.textSize = TEXT_SIZE
         textPaint.textAlign = Paint.Align.LEFT
 
@@ -114,25 +114,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
         }
 
         // 몬스터와 플레이어가 부딪혔을 때 처리
-        for (i in mobs.indices) {
-            if (
-                  (((mobs[i].mobX <= playerX) && (mobs[i].mobX+mobs[i].mobWidth >= playerX + 270)) ||// 몬스터가 왼쪽에 있을 때
-                  ((mobs[i].mobX + mobs[i].mobWidth >= playerX + playerImage.width) && (mobs[i].mobX <= playerX+ playerImage.width - 200))) // 몬스터가 오른족에 있을 때
-                  && (mobs[i].mobY+mobs[i].mobHeight  >= playerY + 250) // 몬스터와 플레이어의 높이가 겹칠때
-              ){
-
-                // 목숨 1 감소 후 몬스터 다시만듬
-                life -= 1
-                // 몬스터 리젠
-                mobs[i].reGen()
-
-                // 목숨을 모두 소모 시
-                // gameView 파괴. 즉, 게임 종료
-                if (life == 0) {
-                    gameView.surfaceDestroyed(holder)
-                }
-            }
-        }
+        checkMobHit(mobs, playerX, playerY, playerImage)
 
         // 목숨에 따른 목숨 상태 색 변경
         if (life <= health / 3) {
@@ -153,31 +135,16 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
         // 업데이트 된 점수 draw
         canvas.drawText("" + points, 20f, TEXT_SIZE, textPaint)
     }
+
     // 배경화면 그리기
     private fun drawBackground(canvas: Canvas) {
-
         // 해당 메소드가 호출 될 때마다 이미지의 y가 증가하므로 이미지가 하강.
         for(i in 0..1) {
             backGrounds[i].move()
         }
 
-        // ** 이 부분 메소드로 빼는게 맞을까?**
-        for(i in 0..1){
-            // 배경 이미지의 y 좌표가 화면의 하단보다 낮으면
-            if (backGrounds[i].y > gameView.dHeight) {
-                // 상단으로 이미지의 위치를 변경
-                backGrounds[i].reGen(backGrounds[1-i].y-backGrounds[1-i].nowImage.height)
-                // 이미지 변경을 위한 count up
-                backGrounds[i].count += 1
-
-                // 조건 만족 시 배경화면 이미지를 다음 이미지로 변경
-                if (backGrounds[i].count == 1) {
-                    // 이미지 변경을 위한 count는 초기화
-                    backGrounds[i].count = 0
-                    backGrounds[i].changeImage()
-                }
-            }
-        }
+        // 배경화면 화면 끝 체크
+        checkBackgroundBottom(backGrounds, gameView.dHeight)
 
         for(i in 0..1) {
             // 해당 메소드가 호출될 때마다 수정된 y값을 기준으로 draw
@@ -189,6 +156,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
             )
         }
     }
+
     // 아이템 그리기
     private fun drawItems(canvas: Canvas) {
         for (i in hpItems.indices) {
@@ -206,18 +174,9 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
         for (i in hpItems.indices) {
             hpItems[i].move()
         }
-// ** 이 부분 메소드로 빼는게 맞을까?**
-        for (i in hpItems.indices.reversed()) {   // 플레이어와 아이템 충돌
-            if (hpItems[i].itemX + hpItems[i].itemWidth - 100 >= playerX
-                && hpItems[i].itemX + 100 <= playerX + playerImage.width
-                && hpItems[i].itemY + hpItems[i].itemHeight >= playerY + 100 ) {
-                if (life < health)      // 체력이 최대체력 적은 경우
-                    life += 1           // 체력이 1만큼 증가시킨다
-                hpItems.removeAt(i)     // 충돌 시 배열에서 삭제
-            }
-        }
-    }
 
+        checkItemHit(hpItems, playerX, playerY, playerImage)    // 플레이어와 아이템 충돌체크
+    }
     // 미사일 그리기
     fun drawMissile(canvas: Canvas) {
         for (i in missiles.indices.reversed()) {
@@ -235,10 +194,8 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
                 missiles.removeAt(i)
             }
         }
-// ** 이 부분 메소드로 빼는게 맞을까?**
-        checkMissileHit(mobs, missiles)
+        checkMissileHit(mobs, missiles)     // 미사일과 몬스터 충돌체크
     }
-
     // 폭발 효과 그리기
     private fun drawExplosion(canvas: Canvas) {
         // explosions 배열에 객체가 있다면 폭발 그림.
@@ -262,7 +219,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
             }
         }
     }
-
+    // 벽 충돌 체크
     private fun checkWallCrash(mob: Mob){
         if(mob.mobX + mob.mobWidth >= gameView.dWidth + 150) { // 오른쪽 벽에 닿았을 때
             mob.direction = 0
@@ -270,6 +227,29 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
             mob.direction = 1
         }
     }
+    // 플레이어 몬스터 충돌 체크
+    private fun checkMobHit(_mobs: ArrayList<Mob>, _playerX: Float, _playerY: Float, _playerImage: Bitmap) {
+        for (i in _mobs.indices) {
+            if (
+                (((_mobs[i].mobX <= _playerX) && (_mobs[i].mobX + _mobs[i].mobWidth >= _playerX + 270)) ||// 몬스터가 왼쪽에 있을 때
+                        ((_mobs[i].mobX + _mobs[i].mobWidth >= _playerX + _playerImage.width) && (_mobs[i].mobX <= _playerX + _playerImage.width - 200))) // 몬스터가 오른족에 있을 때
+                && (_mobs[i].mobY + _mobs[i].mobHeight >= _playerY + 250) // 몬스터와 플레이어의 높이가 겹칠때
+            ) {
+
+                // 목숨 1 감소 후 몬스터 다시만듬
+                life -= 1
+                // 몬스터 리젠
+                _mobs[i].reGen()
+
+                // 목숨을 모두 소모 시
+                // gameView 파괴. 즉, 게임 종료
+                if (life == 0) {
+                    gameView.surfaceDestroyed(holder)
+                }
+            }
+        }
+    }
+    // 미사일과 적 충돌 체크
     private fun checkMissileHit(_mobs: ArrayList<Mob>, _missiles: ArrayList<Missile>) {
         for (i in _mobs.indices.reversed()) {        // 총알과 적 충돌 계산
             for (j in _missiles.indices.reversed()) {
@@ -300,6 +280,38 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
                         _mobs[i].reGen()
                         points += 10
                     }
+                }
+            }
+        }
+    }
+    // 플레이어와 아이템 충돌 체크
+    private fun checkItemHit(_hpItems: ArrayList<HpItem>, _playerX: Float, _playerY: Float, _playerImage: Bitmap) {
+        for (i in _hpItems.indices.reversed()) {   // 플레이어와 아이템 충돌
+            if (_hpItems[i].itemX + _hpItems[i].itemWidth - 100 >= _playerX
+                && _hpItems[i].itemX + 100 <= _playerX + _playerImage.width
+                && _hpItems[i].itemY + _hpItems[i].itemHeight >= _playerY + 100
+            ) {
+                if (life < health)      // 체력이 최대체력 적은 경우
+                    life += 1           // 체력이 1만큼 증가시킨다
+                _hpItems.removeAt(i)     // 충돌 시 배열에서 삭제
+            }
+        }
+    }
+    // 배경화면 화면 끝 체크
+    private fun checkBackgroundBottom(_backGrounds: ArrayList<BackgroundImage>, _height: Int) {
+        for (i in 0..1) {
+            // 배경 이미지의 y 좌표가 화면의 하단보다 낮으면
+            if (_backGrounds[i].y > _height) {
+                // 상단으로 이미지의 위치를 변경
+                _backGrounds[i].reGen(_backGrounds[1 - i].y - _backGrounds[1 - i].nowImage.height)
+                // 이미지 변경을 위한 count up
+                _backGrounds[i].count += 1
+
+                // 조건 만족 시 배경화면 이미지를 다음 이미지로 변경
+                if (_backGrounds[i].count == 1) {
+                    // 이미지 변경을 위한 count는 초기화
+                    _backGrounds[i].count = 0
+                    _backGrounds[i].changeImage()
                 }
             }
         }
