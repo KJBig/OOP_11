@@ -48,13 +48,7 @@ class Mob(context: Context, private val dWidth: Int) {
         // 랜덤 값 변경
         random = Random()
 
-
-        // *** 이 부분 이해가 잘 안됨 *** 비크맵 크기를 키우는건가
-        // 크기를 맘대로 늘렸다 줄였다 해보려고 만들었었음 값을 바꾸면 크기 바꿀수 있긴한데 없애도 노상관이긴함 테스트용 코드임
         for(i in 0 until mobNum) {
-            mob[i] = mob[i]?.let {
-                Bitmap.createScaledBitmap(it, 400, 400, true)
-            }
             reGen()
         }
     }

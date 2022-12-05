@@ -1,5 +1,4 @@
 package com.example.projectOOP
-
 import android.content.Context
 import android.graphics.*
 import android.view.SurfaceView
@@ -11,12 +10,9 @@ import com.example.projectOOP.viewobject.Missile
 import com.example.projectOOP.viewobject.Mob
 import java.lang.IndexOutOfBoundsException
 
-//class GameLogic(context: Context, _health: Int, _damage: Int, _missileReload: Int, _playerImage: Int, private val gameView: GameView): SurfaceView(context) {
 class GameLogic(context: Context, val player: Player, private val gameView: GameView): SurfaceView(context) {
-
     // 배경화면 설정
     var backGrounds: ArrayList<BackgroundImage> = ArrayList()
-//    var player = _player
 
     // 플레이어 이미지 초기화
     var playerImage: Bitmap = BitmapFactory.decodeResource(resources, player.image)
@@ -48,7 +44,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
     var missiles: ArrayList<Missile> = ArrayList()
 
     // 몬스터 배열
-    var mobs: ArrayList<Mob> = ArrayList()
+    private var mobs: ArrayList<Mob> = ArrayList()
 
     // 폭발 객체 배열
     var explosions: ArrayList<Explosion> = ArrayList()
@@ -161,7 +157,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
     private fun drawBackground(canvas: Canvas) {
 
         // 해당 메소드가 호출 될 때마다 이미지의 y가 증가하므로 이미지가 하강.
-        for( i in 0..1) {
+        for(i in 0..1) {
             backGrounds[i].move()
         }
 
@@ -192,7 +188,6 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
                 null
             )
         }
-
     }
     // 아이템 그리기
     private fun drawItems(canvas: Canvas) {
@@ -241,31 +236,7 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
             }
         }
 // ** 이 부분 메소드로 빼는게 맞을까?**
-        for (i in mobs.indices.reversed()) {        // 총알과 적 충돌 계산
-            for (j in missiles.indices.reversed()) {
-                if (
-                    mobs[i].mobX + mobs[i].mobWidth/2  >= missiles[j].missileX - 50 &&
-                    mobs[i].mobX - mobs[i].mobWidth/2  <= missiles[j].missileX - 50 &&
-                    mobs[i].mobY + mobs[i].mobHeight/2 >= missiles[j].missileY) {
-
-                    mobs[i].mobHp -= damage
-                    missiles.removeAt(j)
-
-                    if (mobs[i].mobHp <= 0) {
-                        val explosion = Explosion(context)
-                        explosion.explosionX = mobs[i].mobX + 70
-                        explosion.explosionY = mobs[i].mobY
-                        explosions.add(explosion)
-
-                        if (mobs[i].itemDrop == 0) {    // 몬스터가 갖고 있는 0~9 값 중 0에 해당하면 아이템 생성
-                            hpItems.add(HpItem(context, explosion.explosionX, explosion.explosionY))    // 폭발이 발생한 위치 좌표에 따라 아이템을 생성한다
-                        }
-                        mobs[i].reGen()
-                        points += 10
-                    }
-                }
-            }
-        }
+        checkMissileHit(mobs, missiles)
     }
 
     // 폭발 효과 그리기
@@ -297,6 +268,40 @@ class GameLogic(context: Context, val player: Player, private val gameView: Game
             mob.direction = 0
         }else if(mob.mobX - mob.mobWidth <= gameView.dWidth - 1600){
             mob.direction = 1
+        }
+    }
+    private fun checkMissileHit(_mobs: ArrayList<Mob>, _missiles: ArrayList<Missile>) {
+        for (i in _mobs.indices.reversed()) {        // 총알과 적 충돌 계산
+            for (j in _missiles.indices.reversed()) {
+                if (
+                    _mobs[i].mobX + _mobs[i].mobWidth / 2 >= _missiles[j].missileX - 50 &&
+                    _mobs[i].mobX - _mobs[i].mobWidth / 2 <= _missiles[j].missileX - 50 &&
+                    _mobs[i].mobY + _mobs[i].mobHeight / 2 >= _missiles[j].missileY
+                ) {
+
+                    _mobs[i].mobHp -= damage
+                    _missiles.removeAt(j)
+
+                    if (_mobs[i].mobHp <= 0) {
+                        val explosion = Explosion(context)
+                        explosion.explosionX = _mobs[i].mobX + 70
+                        explosion.explosionY = _mobs[i].mobY
+                        explosions.add(explosion)
+
+                        if (_mobs[i].itemDrop == 0) {    // 몬스터가 갖고 있는 0~9 값 중 0에 해당하면 아이템 생성
+                            hpItems.add(
+                                HpItem(
+                                    context,
+                                    explosion.explosionX,
+                                    explosion.explosionY
+                                )
+                            )    // 폭발이 발생한 위치 좌표에 따라 아이템을 생성한다
+                        }
+                        _mobs[i].reGen()
+                        points += 10
+                    }
+                }
+            }
         }
     }
 }
