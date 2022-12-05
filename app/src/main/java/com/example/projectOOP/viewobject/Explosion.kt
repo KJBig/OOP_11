@@ -7,7 +7,7 @@ import com.example.projectOOP.R
 
 class Explosion(context: Context) {
     // 폭발 이미지 배열
-    private var explosion = arrayOfNulls<Bitmap>(4)
+    private var explosion = ArrayList<Bitmap>(4)
     // 폭발 이미지 순서
     var explosionFrame = 0
     // 폭발의 위치
@@ -16,10 +16,10 @@ class Explosion(context: Context) {
 
     // 배열에 폭발 이미지들을 삽입
     init {
-        explosion[0] = BitmapFactory.decodeResource(context.resources, R.drawable.explode0)
-        explosion[1] = BitmapFactory.decodeResource(context.resources, R.drawable.explode1)
-        explosion[2] = BitmapFactory.decodeResource(context.resources, R.drawable.explode2)
-        explosion[3] = BitmapFactory.decodeResource(context.resources, R.drawable.explode3)
+        explosion.add(BitmapFactory.decodeResource(context.resources, R.drawable.explode0))
+        explosion.add(BitmapFactory.decodeResource(context.resources, R.drawable.explode1))
+        explosion.add(BitmapFactory.decodeResource(context.resources, R.drawable.explode2))
+        explosion.add(BitmapFactory.decodeResource(context.resources, R.drawable.explode3))
     }
 
     // 현재 폭발 이미지를 반환

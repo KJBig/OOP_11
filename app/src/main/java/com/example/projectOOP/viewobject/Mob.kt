@@ -5,12 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.example.projectOOP.R
 import java.util.*
+import kotlin.collections.ArrayList
 
 class Mob(context: Context, private val dWidth: Int) {
     // 한번에 출력 가능한 몬스터의 최대 개수
     private val mobNum = 8
     // 몬스터 이미지 배열
-    private var mob = arrayOfNulls<Bitmap>(mobNum)
+    private var mob = ArrayList<Bitmap>(mobNum)
     // 몬스터 이미지 순서
     var mobFrame = 0
     // 몬스터 위치 초기화
@@ -31,19 +32,19 @@ class Mob(context: Context, private val dWidth: Int) {
     private var random: Random
 
     // 몬스터 이미지 프레임의 넓이와 높이
-    val mobWidth: Int get() = mob[0]!!.width
-    val mobHeight: Int get() = mob[0]!!.height
+    val mobWidth: Int get() = mob[0].width
+    val mobHeight: Int get() = mob[0].height
 
     init {
         //  배열에 몬스터 이미지 삽입
-        mob[0] = BitmapFactory.decodeResource(context.resources, R.drawable.mob0)
-        mob[1] = BitmapFactory.decodeResource(context.resources, R.drawable.mob1)
-        mob[2] = BitmapFactory.decodeResource(context.resources, R.drawable.mob2)
-        mob[3] = BitmapFactory.decodeResource(context.resources, R.drawable.mob3)
-        mob[4] = BitmapFactory.decodeResource(context.resources, R.drawable.mob4)
-        mob[5] = BitmapFactory.decodeResource(context.resources, R.drawable.mob5)
-        mob[6] = BitmapFactory.decodeResource(context.resources, R.drawable.mob6)
-        mob[7] = BitmapFactory.decodeResource(context.resources, R.drawable.mob7)
+        mob.add(BitmapFactory.decodeResource(context.resources, R.drawable.mob0))
+        mob.add(BitmapFactory.decodeResource(context.resources, R.drawable.mob1))
+        mob.add(BitmapFactory.decodeResource(context.resources, R.drawable.mob2))
+        mob.add(BitmapFactory.decodeResource(context.resources, R.drawable.mob3))
+        mob.add(BitmapFactory.decodeResource(context.resources, R.drawable.mob4))
+        mob.add(BitmapFactory.decodeResource(context.resources, R.drawable.mob5))
+        mob.add(BitmapFactory.decodeResource(context.resources, R.drawable.mob6))
+        mob.add(BitmapFactory.decodeResource(context.resources, R.drawable.mob7))
 
         // 랜덤 값 변경
         random = Random()

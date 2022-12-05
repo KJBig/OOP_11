@@ -72,7 +72,6 @@ class GameView(context: Context, val player: Player, private val controller: Gam
     }
 
     override fun surfaceDestroyed(p0: SurfaceHolder) {
-        // ***이 작업을 왜 하는건가?***
         thread.setRunning(false)        // GameThread의 while문 조건을 false로 바꿔준다
         threadShot.setRunning(false)    // while문을 벗어나서 코드부터 멈추고 나서, 밑에서 쓰레드를 끈다
 
