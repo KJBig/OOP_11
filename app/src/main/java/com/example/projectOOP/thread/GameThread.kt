@@ -23,7 +23,7 @@ class GameThread(private val mSurfaceHolder: SurfaceHolder, private val gameLogi
                 }
             }
             try {
-                sleep(20)   // 0.02초마다 그림을 그린다
+                sleep(20)
             } catch (e : InterruptedException) {
                 // GameView의 interrupt 메소드 실행 시 호출되는 InterruptedException을 처리해준다
                 Log.d("thread", "쓰레드 꺼짐")
